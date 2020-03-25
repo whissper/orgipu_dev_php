@@ -2,8 +2,8 @@
  -- ORG-IPU --
  --- front-end ---
  @author: SAV2
- @version 0.5.0
- @since: 18.09.2017
+ @version 0.6.0
+ @since: 25.03.2020
  **/
 
 var currentPageContract = 0;
@@ -245,7 +245,13 @@ function fillTable(tableData, dataVal) {
                             } else {
                                 tableString += '<td></td>';
                             }
-                        } else {
+                        } else if (index == 6) { 
+							if (value == 1) {
+                                tableString += '<td><span class="glyphicon glyphicon-check sav2-color-lightgray" style="font-size: 20px; margin-left: 15px;"></span></td>';
+                            } else {
+                                tableString += '<td></td>';
+                            }
+						} else {
                             tableString += '<td>' + value + '</td>';
                         }
                         break;
@@ -278,7 +284,9 @@ function fillTable(tableData, dataVal) {
                                 tableString += '<td><div class="sav2-color-bluestrict" data-placement="left" data-toggle="tooltip" title="' + normativeInfo[1] + '">Норматив</div></td>';
                             } else if (value.indexOf('BOILER') != -1) {
                                 tableString += '<td><span class="sav2-color-lightgray">Бойлер</span></td>';
-                            } else {
+                            } else if (value.indexOf('HEATMETER') != -1) {
+								tableString += '<td><span class="sav2-color-lightgray">Теплосчетчик</span></td>';
+							} else {
                                 var floatVal = parseFloat(value);
                                 if (floatVal >= 0) {
                                     tableString += '<td><span class="sav2-color-greenforest">' + value + '</span></td>';
@@ -601,6 +609,13 @@ function setEditFieldsForUpdateModal(element_id, queryName, modalTitles) {
                         } else {
                             $('#' + key).prop('checked', false);
                         }
+                    } else if (key.indexOf('isHeatmeterUpd') != -1)
+                    {
+                        if (value == '1') {
+                            $('#' + key).prop('checked', true);
+                        } else {
+                            $('#' + key).prop('checked', false);
+                        }
                     }
                     //special fields end;
                     else
@@ -790,7 +805,8 @@ function insertDevice() {
             {
                 'heated_object_id': $('#insertElement #elementDataIns #heatedobjIDIns').val(),
                 'device_num': $('#insertElement #elementDataIns #deviceNumIns').val().trim(),
-                'is_boiler': $('#insertElement #elementDataIns #isBoilerIns').is(':checked') ? '1' : '0'
+                'is_boiler': $('#insertElement #elementDataIns #isBoilerIns').is(':checked') ? '1' : '0',
+				'is_heatmeter': $('#insertElement #elementDataIns #isHeatmeterIns').is(':checked') ? '1' : '0'
             }
     );
 }
@@ -803,12 +819,14 @@ function selectDevices(pageId) {
                 'device_num': $('#srch-device-num').val().trim(),
                 'heated_object_name': $('#srch-device-nameHO').val().trim(),
                 'heated_object_id': $('#srch-device-idHO').val().trim(),
-                'contractnum': $('#srch-device-contractnum').val().trim()
+                'contractnum': $('#srch-device-contractnum').val().trim(),
+				'is_boiler': $('#srch-device-isBoiler').is(':checked') ? '1' : '',
+				'is_heatmeter': $('#srch-device-isHeatmeter').is(':checked') ? '1' : ''
             },
             {
                 'prefix': 'device',
                 'content': '.sav2-edit-device-table',
-                'header': ['id', '№ прибора', 'Теплоустановка', '№ договора', 'Бойлер', 'Действие']
+                'header': ['id', '№ прибора', 'Теплоустановка', '№ договора', 'Бойлер', 'Теплосчетчик', 'Действие']
             }
     );
 }
@@ -818,7 +836,8 @@ function updateDevice() {
             {
                 'id': $('#updateElement #elementDataUpd #idUpd').val(),
                 'device_num': $('#updateElement #elementDataUpd #numDeviceUpd').val().trim(),
-                'is_boiler': $('#updateElement #elementDataUpd #isBoilerUpd').is(':checked') ? '1' : '0'
+                'is_boiler': $('#updateElement #elementDataUpd #isBoilerUpd').is(':checked') ? '1' : '0',
+				'is_heatmeter': $('#updateElement #elementDataUpd #isHeatmeterUpd').is(':checked') ? '1' : '0'
             }
     );
 }
@@ -1110,6 +1129,7 @@ $(document).ready(function () {
                 '			<input type="text" class="form-control device_num" placeholder="Номер прибора">' +
                 '			<span class="input-group-addon">' +
                 '				<label class="checkbox-inline"><input type="checkbox" class="is_boiler" >Бойлер</label>' +
+				'				<label class="checkbox-inline"><input type="checkbox" class="is_heatmeter" >Теплосчетчик</label>' +
                 '			</span>' +
                 '			<span class="input-group-btn">' +
                 '				<button class="btn btn-default remove-device" title="Удалить"><span class="glyphicon glyphicon-minus"></span></button>' +
@@ -1124,6 +1144,20 @@ $(document).ready(function () {
     //Admin workarea Tab-1 (button .remove-device)
     $(document).on('click', '.remove-device', function () {
         $(this).parents('.sav2-device-item').remove();
+    });
+	
+	//Admin workarea Tab-1 (checkbox .is_boiler)
+	$(document).on('change', '.is_boiler', function () {
+		if ($(this).prop('checked')) {
+			$(this).parents('.input-group-addon').find('.is_heatmeter').prop('checked', false);
+		}
+    });
+	
+	//Admin workarea Tab-1 (checkbox .is_heatmeter)
+	$(document).on('change', '.is_heatmeter', function () {
+		if ($(this).prop('checked')) {
+			$(this).parents('.input-group-addon').find('.is_boiler').prop('checked', false);
+		}
     });
 
     /**
@@ -1142,12 +1176,14 @@ $(document).ready(function () {
                 if (index === premiseObj.length - 1) {
                     newRecordJSON += '{ ';
                     newRecordJSON += '"device_num" : "' + $(element).find('.device_num').val() + '", ';
-                    newRecordJSON += '"is_boiler" : "' + ($(element).find('.is_boiler').is(':checked') ? '1' : '0') + '"';
+                    newRecordJSON += '"is_boiler" : "' + ($(element).find('.is_boiler').is(':checked') ? '1' : '0') + '", ';
+					newRecordJSON += '"is_heatmeter" : "' + ($(element).find('.is_heatmeter').is(':checked') ? '1' : '0') + '"';
                     newRecordJSON += ' }';
                 } else {
                     newRecordJSON += '{ ';
                     newRecordJSON += '"device_num" : "' + $(element).find('.device_num').val() + '", ';
-                    newRecordJSON += '"is_boiler" : "' + ($(element).find('.is_boiler').is(':checked') ? '1' : '0') + '"';
+                    newRecordJSON += '"is_boiler" : "' + ($(element).find('.is_boiler').is(':checked') ? '1' : '0') + '", ';
+					newRecordJSON += '"is_heatmeter" : "' + ($(element).find('.is_heatmeter').is(':checked') ? '1' : '0') + '"';
                     newRecordJSON += ' },';
                 }
             });
@@ -1198,6 +1234,7 @@ $(document).ready(function () {
                 htmlString += '<li>';
                 htmlString += 'Номер ПУ: ' + $(element).find('.device_num').val();
                 htmlString += ($(element).find('.is_boiler').is(':checked') ? ' <i>(Бойлер)</i>' : '');
+				htmlString += ($(element).find('.is_heatmeter').is(':checked') ? ' <i>(Теплосчетчик)</i>' : '');
                 htmlString += '</li>';
             });
             htmlString += '</ul>';
@@ -1212,7 +1249,7 @@ $(document).ready(function () {
     $(document).on('click', '#addRecordYes', function () {
         newRecordJSON = '';
         newRecordJSON += '{ ';
-
+		
         newRecordJSON += '"contract_num" : "' + $('#contract_num').val() + '", ';
 
         //heated-objects -> devices
@@ -1354,7 +1391,12 @@ $(document).ready(function () {
         selectDevices(currentPageDevice);
         $(this).removeAttr('style');
     });
-
+	
+	//Admin workarea Tab-4 (search by type)
+	$(document).on('change', '.sav2-srch-device-by-type', function () {
+        selectDevices(currentPageDevice);
+    });
+	
     //Admin workarea Tab-4 (clear search input)
     $(document).on('click', '.clear-srch-device', function () {
         $(this).parents('.input-group').find('.sav2-srch-device').val('');

@@ -173,7 +173,7 @@
 			</div>
 		</div>
 		<hr />
-		<p>Редактирование договоров:</p>
+		<p>Редактирование тепловых установок:</p>
 		<div class="sav2-edit-heated-object-table">
 		<!-- DYNAMIC start: -->
 		
@@ -241,9 +241,15 @@
 					</span>
 				</div>
 			</div>
+			<div class="col-md-3 col-srch">
+				<div class="checkbox" style="background-color: #eee; white-space: nowrap; padding: 7px; margin: 0;" data-toggle="tooltip" data-placement="top" title="фильтр по типу ПУ">
+					<label style="margin: 0px 10px;"><input type="checkbox" class="sav2-srch-device-by-type" id="srch-device-isBoiler" > Бойлер</label>
+					<label><input type="checkbox" class="sav2-srch-device-by-type" id="srch-device-isHeatmeter" > Теплосчетчик</label>
+				</div>				
+			</div>
 		</div>
 		<hr />
-		<p>Редактирование договоров:</p>
+		<p>Редактирование приборов учета:</p>
 		<div class="sav2-edit-device-table">
 		<!-- DYNAMIC start: -->
 		
@@ -504,4 +510,16 @@
 	});
 	
 	$('[data-toggle="tooltip"]').tooltip();
+	
+	$('#srch-device-isBoiler').on('change', function() {
+		if ($(this).prop('checked')) {
+			$('#srch-device-isHeatmeter').prop('checked', false);
+		}
+	});
+	
+	$('#srch-device-isHeatmeter').on('change', function() {
+		if ($(this).prop('checked')) {
+			$('#srch-device-isBoiler').prop('checked', false);
+		}
+	});
 </script>

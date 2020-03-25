@@ -5,8 +5,8 @@
  *  special "interface" for calling web-application methods 
  *  kinda "Main" class
  * @author SAV2
- * @since 18.09.2017
- * @version 0.1.0
+ * @since 25.03.2020
+ * @version 0.2.0
  */
 
 use utils\TemplateProvider;
@@ -107,6 +107,8 @@ if (Utils::postValueIsValid(filter_input(INPUT_GET, 'action'))) {
                 $postData['heated_object_name'] = Utils::createRegExp(filter_input(INPUT_POST, 'heated_object_name'), Utils::CONTAINS);
                 $postData['heated_object_id']   = Utils::createRegExp(filter_input(INPUT_POST, 'heated_object_id'), Utils::EQUALS);
                 $postData['contract_num']       = Utils::createRegExp(filter_input(INPUT_POST, 'contractnum'), Utils::STARTS_FROM);
+				$postData['is_boiler']   		= Utils::createRegExp(filter_input(INPUT_POST, 'is_boiler'), Utils::EQUALS);
+				$postData['is_heatmeter']   	= Utils::createRegExp(filter_input(INPUT_POST, 'is_heatmeter'), Utils::EQUALS);
 
                 $dbEngine = new DBEngine();
                 echo $dbEngine->selectData('select_devices', $postData);
@@ -225,6 +227,7 @@ if (Utils::postValueIsValid(filter_input(INPUT_GET, 'action'))) {
                 $postData = array();
                 $postData['device_num']       = Utils::formatValue(filter_input(INPUT_POST, 'device_num'));
                 $postData['is_boiler']        = intval(filter_input(INPUT_POST, 'is_boiler'));
+				$postData['is_heatmeter']     = intval(filter_input(INPUT_POST, 'is_heatmeter'));
                 $postData['heated_object_id'] = intval(filter_input(INPUT_POST, 'heated_object_id'));
 
                 $dbEngine = new DBEngine();
@@ -279,9 +282,10 @@ if (Utils::postValueIsValid(filter_input(INPUT_GET, 'action'))) {
             //3 -- for Admin usage
             if (Utils::checkPermission(3)) {
                 $postData = array();
-                $postData['device_num'] = Utils::formatValue(filter_input(INPUT_POST, 'device_num'));
-                $postData['is_boiler']  = intval(filter_input(INPUT_POST, 'is_boiler'));
-                $postData['id']         = intval(filter_input(INPUT_POST, 'id'));
+                $postData['device_num'] 	= Utils::formatValue(filter_input(INPUT_POST, 'device_num'));
+                $postData['is_boiler']  	= intval(filter_input(INPUT_POST, 'is_boiler'));
+				$postData['is_heatmeter']  	= intval(filter_input(INPUT_POST, 'is_heatmeter'));
+                $postData['id']         	= intval(filter_input(INPUT_POST, 'id'));
 
                 $dbEngine = new DBEngine();
                 echo $dbEngine->changeData('update_device', $postData);

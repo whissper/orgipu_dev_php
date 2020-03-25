@@ -144,10 +144,12 @@ class DBEngine {
                                            `device`.`device_num` REGEXP :device_num AND 
                                            `heated_object`.`name` REGEXP :heated_object_name AND 
                                            `device`.`heated_object_id` REGEXP :heated_object_id AND 
-                                           `contract`.`contract_num` REGEXP :contract_num';
+                                           `contract`.`contract_num` REGEXP :contract_num AND
+										   `device`.`is_boiler` REGEXP :is_boiler AND
+										   `device`.`is_heatmeter` REGEXP :is_heatmeter';
 
                 $queryString = 'SELECT `device`.`id`, `device`.`device_num`, `heated_object`.`name`, 
-                                       `device`.`heated_object_id`, `contract`.`contract_num`, `device`.`is_boiler`   
+                                       `device`.`heated_object_id`, `contract`.`contract_num`, `device`.`is_boiler`, `device`.`is_heatmeter`   
                                 FROM `device`
                                 LEFT JOIN `heated_object` ON `heated_object`.`id` = `device`.`heated_object_id` 
                                 LEFT JOIN `contract` ON `contract`.`id` = `heated_object`.`contract_id` 
@@ -155,7 +157,9 @@ class DBEngine {
                                       `device`.`device_num` REGEXP :device_num AND 
                                       `heated_object`.`name` REGEXP :heated_object_name AND 
                                       `device`.`heated_object_id` REGEXP :heated_object_id AND 
-                                      `contract`.`contract_num` REGEXP :contract_num 
+                                      `contract`.`contract_num` REGEXP :contract_num AND 
+									  `device`.`is_boiler` REGEXP :is_boiler AND
+									  `device`.`is_heatmeter` REGEXP :is_heatmeter
                                 ORDER BY `device`.`id` ASC 
                                 LIMIT ' . $postData['start_position'] . ', ' . $postData['per_page'];
 
@@ -164,6 +168,8 @@ class DBEngine {
                 $params[] = new BoundParameter(':heated_object_name', $postData['heated_object_name'], PDO::PARAM_STR);
                 $params[] = new BoundParameter(':heated_object_id', $postData['heated_object_id'], PDO::PARAM_STR);
                 $params[] = new BoundParameter(':contract_num', $postData['contract_num'], PDO::PARAM_STR);
+				$params[] = new BoundParameter(':is_boiler', $postData['is_boiler'], PDO::PARAM_STR);
+				$params[] = new BoundParameter(':is_heatmeter', $postData['is_heatmeter'], PDO::PARAM_STR);
 
                 $dataColumns[] = 'id';
                 $dataColumns[] = 'device_num';
@@ -171,6 +177,7 @@ class DBEngine {
                 $dataColumns[] = 'name';
                 $dataColumns[] = 'contract_num';
                 $dataColumns[] = 'is_boiler';
+				$dataColumns[] = 'is_heatmeter';
                 break;
             case 'select_devicevals':
                 $queryStringCount = 'SELECT COUNT(`metering_values`.`id`) AS "countrows" 
@@ -289,7 +296,7 @@ class DBEngine {
                                    `contract`.`contract_num` REGEXP :contract_num';
 
         $queryString = 'SELECT `device`.`id`, `device`.`device_num`, `heated_object`.`name`, 
-                               `device`.`heated_object_id`, `contract`.`contract_num`, `device`.`is_boiler`   
+                               `device`.`heated_object_id`, `contract`.`contract_num`, `device`.`is_boiler`, `device`.`is_heatmeter`   
                         FROM `device`
                         LEFT JOIN `heated_object` ON `heated_object`.`id` = `device`.`heated_object_id` 
                         LEFT JOIN `contract` ON `contract`.`id` = `heated_object`.`contract_id` 
@@ -336,6 +343,12 @@ class DBEngine {
                 //if device "is boiler" then consumption_val_m3 = "BOILER"
                 if (intval($row['is_boiler']) == 1) {
                     $col_consumption_val_m3 = 'BOILER';
+                }
+				
+				//if device "is heatmeter" then col_consumption_val_gk = $col_consumption_val_m3 AND consumption_val_m3 = "HEATMETER"
+                if (intval($row['is_heatmeter']) == 1) {
+                    $col_consumption_val_gk = $col_consumption_val_m3;
+					$col_consumption_val_m3 = 'HEATMETER';				
                 }
 
                 //if "hide normative values" checkbox is checked
@@ -409,7 +422,7 @@ class DBEngine {
                 $dataColumns[] = 'contract_num';
                 break;
             case 'select_device_by_id':
-                $queryString = 'SELECT `device`.`id`, `device`.`device_num`, `device`.`is_boiler`, `device`.`heated_object_id` 
+                $queryString = 'SELECT `device`.`id`, `device`.`device_num`, `device`.`is_boiler`, `device`.`is_heatmeter`, `device`.`heated_object_id` 
                                 FROM `device` 
                                 WHERE `device`.`id` = :id';
 
@@ -418,11 +431,13 @@ class DBEngine {
                 $propertyNames[] = 'idUpd';
                 $propertyNames[] = 'numDeviceUpd';
                 $propertyNames[] = 'isBoilerUpd';
+				$propertyNames[] = 'isHeatmeterUpd';
                 $propertyNames[] = 'HOidDeviceUpd';
 
                 $dataColumns[] = 'id';
                 $dataColumns[] = 'device_num';
                 $dataColumns[] = 'is_boiler';
+				$dataColumns[] = 'is_heatmeter';
                 $dataColumns[] = 'heated_object_id';
                 break;
             case 'select_devicevals_by_id':
@@ -546,11 +561,12 @@ class DBEngine {
 
                 /** DEVICES * */
                 foreach ($value->{'devices'} as $value) {
-                    $queryString = 'INSERT INTO `device` (`device_num`, `is_boiler`, `heated_object_id`) 
-                                    VALUES (:device_num, :is_boiler, :heated_object_id)';
+                    $queryString = 'INSERT INTO `device` (`device_num`, `is_boiler`, `is_heatmeter`, `heated_object_id`) 
+                                    VALUES (:device_num, :is_boiler, :is_heatmeter, :heated_object_id)';
                     $params = array();
                     $params[] = new BoundParameter(':device_num', Utils::formatValue($value->{'device_num'}), PDO::PARAM_STR);
                     $params[] = new BoundParameter(':is_boiler', intval($value->{'is_boiler'}), PDO::PARAM_INT);
+					$params[] = new BoundParameter(':is_heatmeter', intval($value->{'is_heatmeter'}), PDO::PARAM_INT);
                     $params[] = new BoundParameter(':heated_object_id', $heated_object_id, PDO::PARAM_INT);
 
                     $device_id = $queryEngine->getLastInsertId($queryString, $params);
@@ -588,11 +604,12 @@ class DBEngine {
                 $resultString = 'Данные по теплоустановке: <b>' . $postData['name'] . '</b> успешно записаны в базу.';
                 break;
             case 'insert_device':
-                $queryString = 'INSERT INTO `device` (`device_num`, `is_boiler`, `heated_object_id`) 
-                                VALUES (:device_num, :is_boiler, :heated_object_id)';
+                $queryString = 'INSERT INTO `device` (`device_num`, `is_boiler`, `is_heatmeter`, `heated_object_id`) 
+                                VALUES (:device_num, :is_boiler, :is_heatmeter, :heated_object_id)';
 
                 $params[] = new BoundParameter(':device_num', $postData['device_num'], PDO::PARAM_STR);
                 $params[] = new BoundParameter(':is_boiler', $postData['is_boiler'], PDO::PARAM_INT);
+				$params[] = new BoundParameter(':is_heatmeter', $postData['is_heatmeter'], PDO::PARAM_INT);
                 $params[] = new BoundParameter(':heated_object_id', $postData['heated_object_id'], PDO::PARAM_INT);
 
                 $resultString = 'Данные по прибору учета: <b>' . $postData['device_num'] . '</b> успешно записаны в базу.';
@@ -657,11 +674,12 @@ class DBEngine {
                 break;
             case 'update_device':
                 $queryString = 'UPDATE `device` 
-                                SET `device_num` = :device_num, `is_boiler` = :is_boiler 
+                                SET `device_num` = :device_num, `is_boiler` = :is_boiler, `is_heatmeter` = :is_heatmeter 
                                 WHERE `device`.`id` = :id';
 
                 $params[] = new BoundParameter(':device_num', $postData['device_num'], PDO::PARAM_STR);
                 $params[] = new BoundParameter(':is_boiler', $postData['is_boiler'], PDO::PARAM_INT);
+				$params[] = new BoundParameter(':is_heatmeter', $postData['is_heatmeter'], PDO::PARAM_INT);
                 $params[] = new BoundParameter(':id', $postData['id'], PDO::PARAM_INT);
 
                 $resultString = 'Данные прибора учета под номером id <b>' . $postData['id'] . '</b> успешно обновлены';
