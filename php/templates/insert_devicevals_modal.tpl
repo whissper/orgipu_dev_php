@@ -28,4 +28,5 @@ $('#calcperiodIns').datepicker({
 	minViewMode: "months",
 	language: 'ru'
 });
+$('#calcperiodIns').datepicker('update', new Date());
 </script>

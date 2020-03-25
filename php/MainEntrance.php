@@ -245,9 +245,16 @@ if (Utils::postValueIsValid(filter_input(INPUT_GET, 'action'))) {
                 $postData['calc_month']   = intval(filter_input(INPUT_POST, 'calc_month'));
                 $postData['calc_year']    = intval(filter_input(INPUT_POST, 'calc_year'));
                 $postData['is_normative'] = intval(filter_input(INPUT_POST, 'is_normative'));
-
-                $dbEngine = new DBEngine();
-                echo $dbEngine->insertData('insert_devicevals', $postData);
+				
+				if ($postData['calc_month'] > 0 && 
+					$postData['calc_month'] < 13 && 
+					$postData['calc_year'] > 0) 
+				{				
+					$dbEngine = new DBEngine();
+					echo $dbEngine->insertData('insert_devicevals', $postData);
+				} else {
+					echo 'ERROR_PDO|Пожалуйста выберите корректную дату показаний прибора учета';
+				}
             } else {
                 echo 'ERROR_ACCESS_DENIED';
             }
@@ -302,9 +309,16 @@ if (Utils::postValueIsValid(filter_input(INPUT_GET, 'action'))) {
                 $postData['calc_year']    = intval(filter_input(INPUT_POST, 'calc_year'));
                 $postData['is_normative'] = intval(filter_input(INPUT_POST, 'is_normative'));
                 $postData['id']           = intval(filter_input(INPUT_POST, 'id'));
-
-                $dbEngine = new DBEngine();
-                echo $dbEngine->changeData('update_devicevals', $postData);
+				
+				if ($postData['calc_month'] > 0 && 
+					$postData['calc_month'] < 13 && 
+					$postData['calc_year'] > 0) 
+				{				
+					$dbEngine = new DBEngine();
+					echo $dbEngine->changeData('update_devicevals', $postData);
+				} else {
+					echo 'ERROR_PDO|Пожалуйста выберите корректную дату показаний прибора учета';
+				}
             } else {
                 echo 'ERROR_ACCESS_DENIED';
             }
