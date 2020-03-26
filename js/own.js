@@ -2,7 +2,7 @@
  -- ORG-IPU --
  --- front-end ---
  @author: SAV2
- @version 0.6.0
+ @version 0.6.1
  @since: 25.03.2020
  **/
 
@@ -279,6 +279,9 @@ function fillTable(tableData, dataVal) {
                             if (value.indexOf('ERROR') != -1) {
                                 var errorInfo = value.split('|');
                                 tableString += '<td><div data-placement="left" data-toggle="tooltip" title="' + errorInfo[1] + '"><span class="glyphicon glyphicon-exclamation-sign sav2-color-crimson sav2-error"></span></div></td>';
+                            } else if (value.indexOf('ZERO') != -1) {
+                                var errorInfo = value.split('|');
+                                tableString += '<td><div data-placement="left" data-toggle="tooltip" title="' + errorInfo[1] + '"><span class="sav2-color-crimson">0</span></div></td>';
                             } else if (value.indexOf('NORMATIVE') != -1) {
                                 var normativeInfo = value.split('|');
                                 tableString += '<td><div class="sav2-color-bluestrict" data-placement="left" data-toggle="tooltip" title="' + normativeInfo[1] + '">Норматив</div></td>';

@@ -331,13 +331,35 @@ class DBEngine {
             $calcConsumption = new Consumption($queryEngine);
 
             while ($row = $resultSet->fetch(PDO::FETCH_LAZY)) {
-                $col_consumption_val_m3 = $calcConsumption->getConsumptionValue($row['id'], $postData['calc_month'], $postData['calc_year']);
-
-                if (strpos($col_consumption_val_m3, 'NORMATIVE') !== false || strpos($col_consumption_val_m3, 'ERROR') !== false) {
+                				
+				$CurAndMaxValue = $this->findMaxValue($row['id'], $postData['calc_month'], $postData['calc_year']);
+				
+				//checking for negative consumption (comparing current value and maximum value)
+				// + if current value exists
+				if ( $CurAndMaxValue['curValExists'] === true && 
+					($CurAndMaxValue['cur'] - $CurAndMaxValue['max']) < 0) 
+				{
+					$col_consumption_val_m3 = 'ZERO|Разница между текущим показанием и максимальным за предыдущие периоды равна: '. ($CurAndMaxValue['cur'] - $CurAndMaxValue['max']);
+				} else {
+					$col_consumption_val_m3 = $calcConsumption->getConsumptionValue($row['id'], $postData['calc_month'], $postData['calc_year']);
+				}
+				
+				//if we've got any exception during the calculation process
+                if (strpos($col_consumption_val_m3, 'NORMATIVE') !== false || 
+					strpos($col_consumption_val_m3, 'ERROR') !== false) 
+				{
                     $col_consumption_val_gk = $col_consumption_val_m3;
                 } else {
-                    $col_consumption_val_gk = $col_consumption_val_m3 * 0.0713; //0.0713 -- special coefficient
-                    $col_consumption_val_gk = round($col_consumption_val_gk, 3);
+					$special_coefficient = 0.0713; //0.0713 -- special coefficient
+                    //if negative consumption exists
+					if (strpos($col_consumption_val_m3, 'ZERO') !== false) {
+						$negative_gk = ($CurAndMaxValue['cur'] - $CurAndMaxValue['max']) * $special_coefficient;
+						$negative_gk = round($negative_gk, 3);
+						$col_consumption_val_gk = 'ZERO|Разница между текущим показанием и максимальным за предыдущие периоды равна: '. $negative_gk;
+					} else {
+						$col_consumption_val_gk = $col_consumption_val_m3 * $special_coefficient;
+						$col_consumption_val_gk = round($col_consumption_val_gk, 3);
+					}
                 }
 
                 //if device "is boiler" then consumption_val_m3 = "BOILER"
@@ -751,5 +773,76 @@ class DBEngine {
         $this->destroyPDO();
         return $resultString;
     }
+	
+	/**
+     * Query MAX calc_value
+     * @param Integer $deviceID
+     * @param Integer $month
+	 * @param Integer $year
+     * @return numeric 
+     */	
+	private function findMaxValue($deviceID, $month, $year) {
+		$result = array(
+			'curValExists' => false,
+			'max' => 0,
+			'cur' => 0,
+		);
+
+        $queryStringMax = '';
+        $paramsMax = array();
+		
+		$queryStringCurrent = '';
+		$paramsCurrent = array();
+		
+		//MAX
+		$queryStringMax = 'SELECT MAX(`metering_values`.`calc_value`) AS "maxValue" 
+						FROM `metering_values` 
+						WHERE 
+							`metering_values`.`device_id` = :device_id AND 
+							(	(`metering_values`.`calc_month` < :calc_month AND `metering_values`.`calc_year` = :calc_year) OR 
+								(`metering_values`.`calc_month` < 13 AND `metering_values`.`calc_year` < :calc_year_less)	)';
+
+        $paramsMax[] = new BoundParameter(':device_id', $deviceID, PDO::PARAM_INT);
+		$paramsMax[] = new BoundParameter(':calc_month', $month, PDO::PARAM_INT);
+		$paramsMax[] = new BoundParameter(':calc_year', $year, PDO::PARAM_INT);
+		$paramsMax[] = new BoundParameter(':calc_year_less', $year, PDO::PARAM_INT);
+		
+		//CURRENT
+		$queryStringCurrent = 'SELECT `metering_values`.`calc_value` AS "currentValue" 
+                               FROM `metering_values`
+							   WHERE
+									`metering_values`.`device_id` = :device_id AND
+									`metering_values`.`calc_month` = :calc_month AND 
+									`metering_values`.`calc_year` = :calc_year
+							   ORDER BY `metering_values`.`calc_value` DESC
+							   LIMIT 1';
+							   
+		$paramsCurrent[] = new BoundParameter(':device_id', $deviceID, PDO::PARAM_INT);
+		$paramsCurrent[] = new BoundParameter(':calc_month', $month, PDO::PARAM_INT);
+		$paramsCurrent[] = new BoundParameter(':calc_year', $year, PDO::PARAM_INT);
+		
+		try {
+            $this->createPDO();
+            $queryEngine = new QueryEngine($this->pdo);
+			//MAX
+            $resultSet = $queryEngine->getResultSet($queryStringMax, $paramsMax);
+            while ($row = $resultSet->fetch(PDO::FETCH_LAZY)) {
+                $result['max'] = $row->maxValue;
+            }
+			//CUR
+			$resultSet = $queryEngine->getResultSet($queryStringCurrent, $paramsCurrent);
+            while ($row = $resultSet->fetch(PDO::FETCH_LAZY)) {
+				$result['curValExists'] = true;
+                $result['cur'] = $row->currentValue;
+            }
+		} catch (PDOException $e) {
+			$result['curValExists'] = false;
+            $result['max'] = 0;
+			$result['cur'] = 0;
+        }
+
+		$this->destroyPDO();
+        return $result;
+	}
 
 }

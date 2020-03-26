@@ -35,7 +35,7 @@
 			ORG-IPU
 		</div><!-- /col -->
 		<div class="col-xs-6 sav2-version-control">
-			v 0.6.0
+			v 0.6.1
 		</div><!-- /col -->
 	</div><!-- /row -->
 </div><!-- /container -->
