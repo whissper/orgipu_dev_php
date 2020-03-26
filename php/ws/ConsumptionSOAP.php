@@ -16,7 +16,7 @@ class ConsumptionSOAP {
      */
     public static function writeDataIntoXLSX($postData) {
         try {
-            $client = new SoapClient("http://kom-ts01-dev01:8080/Consumption/ConsumptionWS?wsdl");
+            $client = new SoapClient("http://kom-es01-app25:8080/Consumption/ConsumptionWS?wsdl");
 
             if (!isset($postData['month'])) {
                 $month = date('m');

@@ -243,7 +243,7 @@
 			</div>
 			<div class="col-md-3 col-srch">
 				<div class="checkbox" style="background-color: #eee; white-space: nowrap; padding: 7px; margin: 0;" data-toggle="tooltip" data-placement="top" title="фильтр по типу ПУ">
-					<label style="margin: 0px 10px;"><input type="checkbox" class="sav2-srch-device-by-type" id="srch-device-isBoiler" > Бойлер</label>
+					<label style="margin: 0px 10px;"><input type="checkbox" class="sav2-srch-device-by-type" id="srch-device-isGVS" > ГВС</label>
 					<label><input type="checkbox" class="sav2-srch-device-by-type" id="srch-device-isHeatmeter" > Теплосчетчик</label>
 				</div>				
 			</div>
@@ -341,6 +341,12 @@
 					</span>
 				</div>
 			</div>
+			<div class="col-md-3 col-srch">
+				<div class="checkbox" style="background-color: #eee; white-space: nowrap; padding: 7px; margin: 0;" data-toggle="tooltip" data-placement="top" title="фильтр по типу ПУ">
+					<label style="margin: 0px 10px;"><input type="checkbox" class="sav2-srch-devicevals-by-type" id="srch-devicevals-isGVS" > ГВС</label>
+					<label><input type="checkbox" class="sav2-srch-devicevals-by-type" id="srch-devicevals-isHeatmeter" > Теплосчетчик</label>
+				</div>				
+			</div>
 		</div>
 		<hr />
 		<p>Редактирование показаний ПУ:</p>
@@ -428,6 +434,12 @@
 					</span>
 				</div>
 			</div>
+			<div class="col-md-3 col-srch">
+				<div class="checkbox" style="background-color: #eee; white-space: nowrap; padding: 7px; margin: 0;" data-toggle="tooltip" data-placement="top" title="фильтр по типу ПУ">
+					<label style="margin: 0px 10px;"><input type="checkbox" class="sav2-srch-deviceconsume-by-type" id="srch-deviceconsume-isGVS" > ГВС</label>
+					<label><input type="checkbox" class="sav2-srch-deviceconsume-by-type" id="srch-deviceconsume-isHeatmeter" > Теплосчетчик</label>
+				</div>				
+			</div>
 		</div>
 		<hr />
 		<p>Показания расходов:</p>
@@ -511,7 +523,8 @@
 	
 	$('[data-toggle="tooltip"]').tooltip();
 	
-	$('#srch-device-isBoiler').on('change', function() {
+	//Devices
+	$('#srch-device-isGVS').on('change', function() {
 		if ($(this).prop('checked')) {
 			$('#srch-device-isHeatmeter').prop('checked', false);
 		}
@@ -519,7 +532,33 @@
 	
 	$('#srch-device-isHeatmeter').on('change', function() {
 		if ($(this).prop('checked')) {
-			$('#srch-device-isBoiler').prop('checked', false);
+			$('#srch-device-isGVS').prop('checked', false);
+		}
+	});
+	
+	//Device vals
+	$('#srch-devicevals-isGVS').on('change', function() {
+		if ($(this).prop('checked')) {
+			$('#srch-devicevals-isHeatmeter').prop('checked', false);
+		}
+	});
+	
+	$('#srch-devicevals-isHeatmeter').on('change', function() {
+		if ($(this).prop('checked')) {
+			$('#srch-devicevals-isGVS').prop('checked', false);
+		}
+	});
+	
+	//Device consume
+	$('#srch-deviceconsume-isGVS').on('change', function() {
+		if ($(this).prop('checked')) {
+			$('#srch-deviceconsume-isHeatmeter').prop('checked', false);
+		}
+	});
+	
+	$('#srch-deviceconsume-isHeatmeter').on('change', function() {
+		if ($(this).prop('checked')) {
+			$('#srch-deviceconsume-isGVS').prop('checked', false);
 		}
 	});
 </script>

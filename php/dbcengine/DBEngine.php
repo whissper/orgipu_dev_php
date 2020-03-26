@@ -145,7 +145,6 @@ class DBEngine {
                                            `heated_object`.`name` REGEXP :heated_object_name AND 
                                            `device`.`heated_object_id` REGEXP :heated_object_id AND 
                                            `contract`.`contract_num` REGEXP :contract_num AND
-										   `device`.`is_boiler` REGEXP :is_boiler AND
 										   `device`.`is_heatmeter` REGEXP :is_heatmeter';
 
                 $queryString = 'SELECT `device`.`id`, `device`.`device_num`, `heated_object`.`name`, 
@@ -158,7 +157,6 @@ class DBEngine {
                                       `heated_object`.`name` REGEXP :heated_object_name AND 
                                       `device`.`heated_object_id` REGEXP :heated_object_id AND 
                                       `contract`.`contract_num` REGEXP :contract_num AND 
-									  `device`.`is_boiler` REGEXP :is_boiler AND
 									  `device`.`is_heatmeter` REGEXP :is_heatmeter
                                 ORDER BY `device`.`id` ASC 
                                 LIMIT ' . $postData['start_position'] . ', ' . $postData['per_page'];
@@ -168,7 +166,6 @@ class DBEngine {
                 $params[] = new BoundParameter(':heated_object_name', $postData['heated_object_name'], PDO::PARAM_STR);
                 $params[] = new BoundParameter(':heated_object_id', $postData['heated_object_id'], PDO::PARAM_STR);
                 $params[] = new BoundParameter(':contract_num', $postData['contract_num'], PDO::PARAM_STR);
-				$params[] = new BoundParameter(':is_boiler', $postData['is_boiler'], PDO::PARAM_STR);
 				$params[] = new BoundParameter(':is_heatmeter', $postData['is_heatmeter'], PDO::PARAM_STR);
 
                 $dataColumns[] = 'id';
@@ -191,7 +188,8 @@ class DBEngine {
                                             `metering_values`.`calc_month` REGEXP :calc_month AND 
                                             `metering_values`.`calc_year` REGEXP :calc_year AND 
                                             `heated_object`.`name` REGEXP :heated_object_name AND 
-                                            `contract`.`contract_num` REGEXP :contract_num';
+                                            `contract`.`contract_num` REGEXP :contract_num AND 
+											`device`.`is_heatmeter` REGEXP :is_heatmeter';
 
                 $queryString = 'SELECT `metering_values`.`id`, `metering_values`.`device_id`, 
                                        `device`.`device_num`, `metering_values`.`calc_value`, 
@@ -210,7 +208,8 @@ class DBEngine {
                                       `metering_values`.`calc_month` REGEXP :calc_month AND 
                                       `metering_values`.`calc_year` REGEXP :calc_year AND 
                                       `heated_object`.`name` REGEXP :heated_object_name AND 
-                                      `contract`.`contract_num` REGEXP :contract_num 
+                                      `contract`.`contract_num` REGEXP :contract_num AND 
+									  `device`.`is_heatmeter` REGEXP :is_heatmeter
                                 ORDER BY `device`.`device_num` ASC, `metering_values`.`calc_year` DESC, `metering_values`.`calc_month` DESC 
                                 LIMIT ' . $postData['start_position'] . ', ' . $postData['per_page'];
 
@@ -221,6 +220,7 @@ class DBEngine {
                 $params[] = new BoundParameter(':calc_year', $postData['calc_year'], PDO::PARAM_STR);
                 $params[] = new BoundParameter(':heated_object_name', $postData['heated_object_name'], PDO::PARAM_STR);
                 $params[] = new BoundParameter(':contract_num', $postData['contract_num'], PDO::PARAM_STR);
+				$params[] = new BoundParameter(':is_heatmeter', $postData['is_heatmeter'], PDO::PARAM_STR);
 
                 $dataColumns[] = 'id';
                 $dataColumns[] = 'contract_num';
@@ -293,7 +293,8 @@ class DBEngine {
                                    `device`.`device_num` REGEXP :device_num AND 
                                    `heated_object`.`name` REGEXP :heated_object_name AND 
                                    `device`.`heated_object_id` REGEXP :heated_object_id AND 
-                                   `contract`.`contract_num` REGEXP :contract_num';
+                                   `contract`.`contract_num` REGEXP :contract_num AND 
+								   `device`.`is_heatmeter` REGEXP :is_heatmeter';
 
         $queryString = 'SELECT `device`.`id`, `device`.`device_num`, `heated_object`.`name`, 
                                `device`.`heated_object_id`, `contract`.`contract_num`, `device`.`is_boiler`, `device`.`is_heatmeter`   
@@ -304,7 +305,8 @@ class DBEngine {
                               `device`.`device_num` REGEXP :device_num AND 
                               `heated_object`.`name` REGEXP :heated_object_name AND 
                               `device`.`heated_object_id` REGEXP :heated_object_id AND 
-                              `contract`.`contract_num` REGEXP :contract_num 
+                              `contract`.`contract_num` REGEXP :contract_num AND 
+							  `device`.`is_heatmeter` REGEXP :is_heatmeter
                         ORDER BY `heated_object`.`name` ASC 
                         LIMIT ' . $postData['start_position'] . ', ' . $postData['per_page'];
 
@@ -313,6 +315,7 @@ class DBEngine {
         $params[] = new BoundParameter(':heated_object_name', $postData['heated_object_name'], PDO::PARAM_STR);
         $params[] = new BoundParameter(':heated_object_id', $postData['heated_object_id'], PDO::PARAM_STR);
         $params[] = new BoundParameter(':contract_num', $postData['contract_num'], PDO::PARAM_STR);
+		$params[] = new BoundParameter(':is_heatmeter', $postData['is_heatmeter'], PDO::PARAM_STR);
 
         try {
             $this->createPDO();

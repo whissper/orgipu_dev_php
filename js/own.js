@@ -823,8 +823,7 @@ function selectDevices(pageId) {
                 'heated_object_name': $('#srch-device-nameHO').val().trim(),
                 'heated_object_id': $('#srch-device-idHO').val().trim(),
                 'contractnum': $('#srch-device-contractnum').val().trim(),
-				'is_boiler': $('#srch-device-isBoiler').is(':checked') ? '1' : '',
-				'is_heatmeter': $('#srch-device-isHeatmeter').is(':checked') ? '1' : ''
+				'is_heatmeter': $('#srch-device-isGVS').is(':checked') ? '0' : ( $('#srch-device-isHeatmeter').is(':checked') ? '1' : '' )
             },
             {
                 'prefix': 'device',
@@ -869,7 +868,8 @@ function selectDeviceVals(pageId) {
                 'calc_month': $('#srch-devicevals-month').val().trim(),
                 'calc_year': $('#srch-devicevals-year').val().trim(),
                 'heated_object_name': $('#srch-devicevals-nameHO').val().trim(),
-                'contract_num': $('#srch-devicevals-contractnum').val().trim()
+                'contract_num': $('#srch-devicevals-contractnum').val().trim(),
+				'is_heatmeter': $('#srch-devicevals-isGVS').is(':checked') ? '0' : ( $('#srch-devicevals-isHeatmeter').is(':checked') ? '1' : '' )
             },
             {
                 'prefix': 'devicevals',
@@ -906,7 +906,8 @@ function selectDeviceConsume(pageId) {
                 'contractnum': $('#srch-deviceconsume-contractnum').val().trim(),
                 'calc_month': monthNyear[0],
                 'calc_year': monthNyear[1],
-                'hide_normative_vals': $('#hideNormativeVals').is(':checked') ? '1' : '0'
+                'hide_normative_vals': $('#hideNormativeVals').is(':checked') ? '1' : '0',
+				'is_heatmeter': $('#srch-deviceconsume-isGVS').is(':checked') ? '0' : ( $('#srch-deviceconsume-isHeatmeter').is(':checked') ? '1' : '' )
             },
             {
                 'prefix': 'deviceconsume',
@@ -1395,7 +1396,7 @@ $(document).ready(function () {
         $(this).removeAttr('style');
     });
 	
-	//Admin workarea Tab-4 (search by type)
+	//Admin workarea Tab-4 (search by device type)
 	$(document).on('change', '.sav2-srch-device-by-type', function () {
         selectDevices(currentPageDevice);
     });
@@ -1444,7 +1445,12 @@ $(document).ready(function () {
         selectDeviceVals(currentPageDeviceVals);
         $(this).removeAttr('style');
     });
-
+	
+	//Admin workarea Tab-5 (search by device type)
+	$(document).on('change', '.sav2-srch-devicevals-by-type', function () {
+        selectDeviceVals(currentPageDeviceVals);
+    });
+	
     //Admin workarea Tab-5 (clear search input)
     $(document).on('click', '.clear-srch-devicevals', function () {
         $(this).parents('.input-group').find('.sav2-srch-devicevals').val('');
@@ -1488,6 +1494,11 @@ $(document).ready(function () {
         selectDeviceConsume(currentPageDeviceConsume);
     });
 
+	//Admin workarea Tab-6 (search by device type)
+	$(document).on('change', '.sav2-srch-deviceconsume-by-type', function () {
+        selectDeviceConsume(currentPageDeviceConsume);
+    });
+	
     //Admin workarea Tab-6 (clear search input)
     $(document).on('click', '.clear-srch-deviceconsume', function () {
         $(this).parents('.input-group').find('.sav2-srch-deviceconsume').val('');

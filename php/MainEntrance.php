@@ -107,7 +107,6 @@ if (Utils::postValueIsValid(filter_input(INPUT_GET, 'action'))) {
                 $postData['heated_object_name'] = Utils::createRegExp(filter_input(INPUT_POST, 'heated_object_name'), Utils::CONTAINS);
                 $postData['heated_object_id']   = Utils::createRegExp(filter_input(INPUT_POST, 'heated_object_id'), Utils::EQUALS);
                 $postData['contract_num']       = Utils::createRegExp(filter_input(INPUT_POST, 'contractnum'), Utils::STARTS_FROM);
-				$postData['is_boiler']   		= Utils::createRegExp(filter_input(INPUT_POST, 'is_boiler'), Utils::EQUALS);
 				$postData['is_heatmeter']   	= Utils::createRegExp(filter_input(INPUT_POST, 'is_heatmeter'), Utils::EQUALS);
 
                 $dbEngine = new DBEngine();
@@ -131,6 +130,7 @@ if (Utils::postValueIsValid(filter_input(INPUT_GET, 'action'))) {
                 $postData['calc_year']          = Utils::createRegExp(filter_input(INPUT_POST, 'calc_year'), Utils::EQUALS);
                 $postData['heated_object_name'] = Utils::createRegExp(filter_input(INPUT_POST, 'heated_object_name'), Utils::CONTAINS);
                 $postData['contract_num']       = Utils::createRegExp(filter_input(INPUT_POST, 'contract_num'), Utils::STARTS_FROM);
+				$postData['is_heatmeter']   	= Utils::createRegExp(filter_input(INPUT_POST, 'is_heatmeter'), Utils::EQUALS);
 
                 $dbEngine = new DBEngine();
                 echo $dbEngine->selectData('select_devicevals', $postData);
@@ -154,6 +154,7 @@ if (Utils::postValueIsValid(filter_input(INPUT_GET, 'action'))) {
                 $postData['calc_month']          = intval(filter_input(INPUT_POST, 'calc_month'));
                 $postData['calc_year']           = intval(filter_input(INPUT_POST, 'calc_year'));
                 $postData['hide_normative_vals'] = intval(filter_input(INPUT_POST, 'hide_normative_vals'));
+				$postData['is_heatmeter']   	 = Utils::createRegExp(filter_input(INPUT_POST, 'is_heatmeter'), Utils::EQUALS);
 
                 $dbEngine = new DBEngine();
                 echo $dbEngine->selectConsumption($postData);
